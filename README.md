@@ -44,85 +44,12 @@ Selecione sua chave `.ppk` em **Private key file for authentication**.
 
 ---
 
-## ⚙️ Validando a AWS CLI
 
-Verifique se a CLI está instalada corretamente:
-
-```bash
-aws --version
-Saída esperada:
-
-bash
-Copiar código
-aws-cli/2.x Python/3.x Linux/...
-🧠 Desafio: Baixar o JSON da Política lab_policy
-O objetivo é baixar o documento da política IAM lab_policy sem usar o Console da AWS.
-
-🔹 Passo a passo
-1️⃣ Listar políticas locais:
-
-bash
-Copiar código
-aws iam list-policies --scope Local
-2️⃣ Copiar o ARN da política lab_policy.
-
-3️⃣ Obter a versão padrão:
-
-bash
-Copiar código
-aws iam get-policy --policy-arn <ARN>
-4️⃣ Baixar o documento JSON:
-
-bash
-Copiar código
-aws iam get-policy-version \
-  --policy-arn <ARN> \
-  --version-id <VERSAO> \
-  --query "PolicyVersion.Document" \
-  --output json > lab_policy.json
-5️⃣ Verificar o conteúdo:
-
-bash
-Copiar código
-cat lab_policy.json
-⚡ Script Automatizado (opcional)
-Crie um arquivo chamado get_lab_policy.sh dentro da pasta scripts/ e adicione:
-
-bash
-Copiar código
-#!/usr/bin/env bash
-set -euo pipefail
-
-echo "🔎 Buscando ARN da política 'lab_policy'..."
-POLICY_ARN=$(aws iam list-policies --scope Local \
-  --query "Policies[?PolicyName=='lab_policy'].Arn" --output text)
-
-if [[ -z "${POLICY_ARN}" || "${POLICY_ARN}" == "None" ]]; then
-  echo "❌ Política 'lab_policy' não encontrada."
-  exit 1
-fi
-echo "✅ POLICY_ARN: $POLICY_ARN"
-
-VERSION_ID=$(aws iam get-policy --policy-arn "$POLICY_ARN" \
-  --query "Policy.DefaultVersionId" --output text)
-echo "✅ VERSION_ID: $VERSION_ID"
-
-aws iam get-policy-version --policy-arn "$POLICY_ARN" --version-id "$VERSION_ID" \
-  --query "PolicyVersion.Document" --output json > lab_policy.json
-
-echo "📄 Salvo em $(pwd)/lab_policy.json"
-Execute com:
-
-bash
-Copiar código
-bash scripts/get_lab_policy.sh
-
-
-## 🧰 Solução de Problemas
+## 💼 Solução de Problemas
 
 | 💬 **Erro** | ⚙️ **Causa Provável** | 💡 **Solução** |
-|--------------|-----------------------|----------------|
+|--------------|------------------------|----------------|
 | ❌ **AccessDenied** | Permissão IAM insuficiente | Use o perfil do lab ou peça permissões `iam:ListPolicies` e `iam:GetPolicy*`. |
-| ⚠️ **Unable to locate credentials** | Credenciais ausentes | Execute `aws configure` e insira suas chaves ou perfil do lab. |
+| ⚠️ **Unable to locate credentials** | Credenciais ausentes | Execute `aws configure` e insira suas chaves ou o perfil do lab. |
 | 🚫 **Access denied (publickey)** | Usuário incorreto | Use `ec2-user` (Amazon Linux) ou `ubuntu` (Ubuntu). |
 | ⏳ **Connection timed out** | Instância ainda iniciando | Aguarde alguns segundos e tente novamente. |
