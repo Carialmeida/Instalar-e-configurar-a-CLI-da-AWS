@@ -116,9 +116,13 @@ Execute com:
 bash
 Copiar código
 bash scripts/get_lab_policy.sh
-🧰 Solução de Problemas
-Erro	Causa	Solução
-❌ AccessDenied	Permissão IAM insuficiente	Use o perfil do lab ou peça permissões iam:ListPolicies e iam:GetPolicy*
-⚠️ Unable to locate credentials	Credenciais ausentes	Execute aws configure
-🚫 Access denied (publickey)	Usuário incorreto	Use ec2-user (Amazon Linux) ou ubuntu (Ubuntu)
-⏳ Connection timed out	Instância iniciando	Aguarde alguns segundos e tente novamente
+
+
+## 🧰 Solução de Problemas
+
+| 💬 **Erro** | ⚙️ **Causa Provável** | 💡 **Solução** |
+|--------------|-----------------------|----------------|
+| ❌ **AccessDenied** | Permissão IAM insuficiente | Use o perfil do lab ou peça permissões `iam:ListPolicies` e `iam:GetPolicy*`. |
+| ⚠️ **Unable to locate credentials** | Credenciais ausentes | Execute `aws configure` e insira suas chaves ou perfil do lab. |
+| 🚫 **Access denied (publickey)** | Usuário incorreto | Use `ec2-user` (Amazon Linux) ou `ubuntu` (Ubuntu). |
+| ⏳ **Connection timed out** | Instância ainda iniciando | Aguarde alguns segundos e tente novamente. |
