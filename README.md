@@ -1,122 +1,124 @@
-🌩️ Instalar e Configurar a AWS CLI
+# 🌩️ Instalar e Configurar a AWS CLI
 
-Repositório criado como parte do laboratório de AWS para demonstrar:
+Repositório criado como parte de um **laboratório AWS**, demonstrando:
 
-✅ Acesso a uma instância EC2 (Amazon Linux 2) via PuTTY
-✅ Verificação e uso da AWS CLI v2
-✅ Execução do desafio de política IAM (lab_policy) — tudo pela linha de comando!
+- 🚀 Acesso a uma **instância EC2 (Amazon Linux 2)** via **PuTTY**  
+- 🧩 Validação e uso da **AWS CLI v2**  
+- 🛡️ Execução do **desafio IAM (`lab_policy`)** — usando apenas linha de comando!  
 
-🧩 Objetivo
+---
 
-Aprender na prática como:
+## 🎯 Objetivo
 
-Conectar-se a uma instância EC2 de forma segura usando chave privada (.ppk);
+Aprender a:
 
-Configurar e validar a AWS CLI;
+- Conectar-se a uma instância EC2 com chave privada (`.ppk`)  
+- Configurar e validar a AWS CLI  
+- Executar comandos IAM diretamente no terminal  
+- Baixar o documento JSON da política **`lab_policy`**
 
-Executar comandos IAM via terminal, sem usar o Console da AWS;
+---
 
-Baixar o documento JSON da política lab_policy.
+## 🖥️ Acesso à Instância EC2 (via PuTTY)
 
-🖥️ Acesso à Instância EC2
-
-Baixe a chave .ppk no painel do laboratório.
-
-Copie o IP público (exemplo: 35.161.200.130).
-
-Abra o PuTTY e configure:
+1. **Baixe a chave `.ppk`** no painel do laboratório.  
+2. **Copie o IP público** (exemplo: `35.161.200.130`).  
+3. **Abra o PuTTY** e configure:
 
 Host Name: ec2-user@<SEU_IP>
-
 Port: 22
-
 Connection type: SSH
 
-Vá em Connection → SSH → Auth → Credentials
+css
+Copiar código
+4. Vá em:
+Connection → SSH → Auth → Credentials
 
-Em Private key file for authentication, selecione sua chave .ppk.
+yaml
+Copiar código
+Selecione sua chave `.ppk` em **Private key file for authentication**.  
+5. Clique em **Open** e aceite o aviso de segurança.  
+6. Você verá o prompt de boas-vindas do Amazon Linux 🎉  
 
-Clique em Open → aceite o aviso de segurança.
+> 💡 **Dica:** use o usuário `ec2-user` (Amazon Linux) ou `ubuntu` (para AMI Ubuntu).
 
-Pronto! Você verá a tela de boas-vindas do Amazon Linux 🎉
+---
 
-💡 Dica: use o usuário ec2-user (Amazon Linux) ou ubuntu (caso use AMI Ubuntu).
+## ⚙️ Validando a AWS CLI
 
-⚙️ Validando a AWS CLI
+Verifique se a CLI está instalada corretamente:
 
-Para confirmar que a CLI está instalada:
-
+```bash
 aws --version
-
-
 Saída esperada:
 
+bash
+Copiar código
 aws-cli/2.x Python/3.x Linux/...
-
 🧠 Desafio: Baixar o JSON da Política lab_policy
+O objetivo é baixar o documento da política IAM lab_policy sem usar o Console da AWS.
 
-O desafio consiste em encontrar e baixar o documento da política IAM lab_policy usando apenas comandos AWS CLI.
+🔹 Passo a passo
+1️⃣ Listar políticas locais:
 
-Passos resumidos
-
-1️⃣ Listar políticas gerenciadas localmente:
-
+bash
+Copiar código
 aws iam list-policies --scope Local
-
-
-2️⃣ Pegar o ARN da política lab_policy.
+2️⃣ Copiar o ARN da política lab_policy.
 
 3️⃣ Obter a versão padrão:
 
+bash
+Copiar código
 aws iam get-policy --policy-arn <ARN>
+4️⃣ Baixar o documento JSON:
 
-
-4️⃣ Baixar o JSON da política:
-
+bash
+Copiar código
 aws iam get-policy-version \
   --policy-arn <ARN> \
   --version-id <VERSAO> \
   --query "PolicyVersion.Document" \
   --output json > lab_policy.json
+5️⃣ Verificar o conteúdo:
 
-
-5️⃣ Verificar o arquivo:
-
+bash
+Copiar código
 cat lab_policy.json
+⚡ Script Automatizado (opcional)
+Crie um arquivo chamado get_lab_policy.sh dentro da pasta scripts/ e adicione:
 
-🪄 Script Automatizado (opcional)
+bash
+Copiar código
+#!/usr/bin/env bash
+set -euo pipefail
 
-Você pode salvar esse script em scripts/get_lab_policy.sh e executá-lo:
+echo "🔎 Buscando ARN da política 'lab_policy'..."
+POLICY_ARN=$(aws iam list-policies --scope Local \
+  --query "Policies[?PolicyName=='lab_policy'].Arn" --output text)
 
+if [[ -z "${POLICY_ARN}" || "${POLICY_ARN}" == "None" ]]; then
+  echo "❌ Política 'lab_policy' não encontrada."
+  exit 1
+fi
+echo "✅ POLICY_ARN: $POLICY_ARN"
+
+VERSION_ID=$(aws iam get-policy --policy-arn "$POLICY_ARN" \
+  --query "Policy.DefaultVersionId" --output text)
+echo "✅ VERSION_ID: $VERSION_ID"
+
+aws iam get-policy-version --policy-arn "$POLICY_ARN" --version-id "$VERSION_ID" \
+  --query "PolicyVersion.Document" --output json > lab_policy.json
+
+echo "📄 Salvo em $(pwd)/lab_policy.json"
+Execute com:
+
+bash
+Copiar código
 bash scripts/get_lab_policy.sh
-
-
-Ele faz tudo automaticamente e gera o arquivo lab_policy.json.
-
 🧰 Solução de Problemas
-Erro	Causa provável	Solução
-❌ AccessDenied	Sem permissão no IAM	Use as credenciais do lab
-⚠️ Unable to locate credentials	CLI não configurada	Execute aws configure
-🚫 Access denied (publickey)	Usuário incorreto	Use ec2-user ou ubuntu
-⏳ Connection timed out	Instância iniciando	Aguarde o boot completo
-🗂️ Estrutura do Projeto
-Instalar-e-configurar-a-CLI-da-AWS/
-├── README.md
-├── LICENSE
-├── .gitignore
-├── docs/
-│   └── comandos_basicos.md
-├── scripts/
-│   └── get_lab_policy.sh
-└── imagens/
-    ├── ec2-ssh-bemvindo.png
-    ├── ec2-console-instancias.png
-    └── lab-painel.png
-
-☁️ Publicação no GitHub
-
-Crie o repositório Instalar-e-configurar-a-CLI-da-AWS no seu GitHub.
-
-Faça upload destes arquivos manualmente (via “Add file → Upload files”).
-
-Clique em Commit changes e pronto 🎉
+Erro	Causa	Solução
+❌ AccessDenied	Permissão IAM insuficiente	Use o perfil do lab ou peça permissões iam:ListPolicies e iam:GetPolicy*
+⚠️ Unable to locate credentials	Credenciais ausentes	Execute aws configure
+🚫 Access denied (publickey)	Usuário incorreto	Use ec2-user (Amazon Linux) ou ubuntu (Ubuntu)
+⏳ Connection timed out	Instância iniciando	Aguarde alguns segundos e tente novamente
